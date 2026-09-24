@@ -1,19 +1,29 @@
 {
   "manifest_version": 3,
   "name": "Domain Lazy Tabs — 指定网站按需加载",
-  "version": "1.0.0",
-  "description": "指定域名的链接在后台打开时先显示本地占位页，切换标签页才访问目标网址。",
+  "version": "1.1.0",
+  "description": "指定域名的后台链接先进入本地等待页；可选点击才加载，或最多提前加载几个，关闭后自动补位。",
   "permissions": [
-    "storage"
+    "storage",
+    "tabs"
   ],
+  "minimum_chrome_version": "102",
+  "background": { "service_worker": "background.js" },
   "incognito": "not_allowed",
   "icons": {
     "16": "icons/16.png",
+    "32": "icons/32.png",
     "48": "icons/48.png",
     "128": "icons/128.png"
   },
   "action": {
     "default_title": "Domain Lazy Tabs 设置",
+    "default_icon": {
+      "16": "icons/16.png",
+      "32": "icons/32.png",
+      "48": "icons/48.png",
+      "128": "icons/128.png"
+    },
     "default_popup": "options.html"
   },
   "options_ui": {

@@ -12,6 +12,8 @@ p { margin:12px 0 18px; }
 label { display:block; font-weight:600; }
 .toggle { margin:20px 0; }
 input { accent-color:var(--accent); }
+select,input[type="number"] { display:block; width:100%; padding:9px 12px; margin:8px 0 16px; border:1px solid var(--line); border-radius:9px; background:var(--surface); color:var(--ink); font:inherit; }
+input:disabled { opacity:.5; }
 textarea { display:block; width:100%; margin-top:8px; padding:12px; border:1px solid var(--line); border-radius:9px; color:var(--ink); background:var(--surface); font:16px/1.6 Consolas,monospace; resize:vertical; }
 button { background:var(--accent); color:white; border:0; border-radius:8px; padding:10px 22px; font:inherit; cursor:pointer; }
 button:disabled { opacity:.5; }

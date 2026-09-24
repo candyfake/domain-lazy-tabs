@@ -1,7 +1,15 @@
 /* Shared pure helpers. No dependencies and no network access. */
 (function (root) {
   'use strict';
-  const defaults = { enabled: true, domains: ['linux.do'] };
+  const defaults = { enabled: true, domains: ['linux.do'], mode: 'lazy', preloadLimit: 3 };
+  function normalizeConfig(value = {}) {
+    return {
+      enabled: value.enabled !== false,
+      domains: Array.isArray(value.domains) ? value.domains.filter(domain => typeof domain === 'string') : [...defaults.domains],
+      mode: value.mode === 'preload' ? 'preload' : 'lazy',
+      preloadLimit: Math.max(1, Math.min(10, Math.trunc(Number(value.preloadLimit)) || defaults.preloadLimit)),
+    };
+  }
   function normalizeDomain(value) {
     const input = String(value).trim();
     if (!input || /[\s*]/.test(input)) throw new Error('域名不能包含空格或通配符。');
@@ -36,5 +44,5 @@
       return data.v === 1 && url ? { url, title: String(data.title || '').slice(0, 200) } : null;
     } catch { return null; }
   }
-  root.DomainLazyTabs = { defaults, normalizeDomain, safeUrl, matches, makeParkUrl, parseParkHash };
+  root.DomainLazyTabs = { defaults, normalizeConfig, normalizeDomain, safeUrl, matches, makeParkUrl, parseParkHash };
 })(typeof globalThis === 'object' ? globalThis : this);

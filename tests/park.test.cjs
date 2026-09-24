@@ -10,7 +10,7 @@ const shared = fs.readFileSync(path.join(__dirname, '../extension/shared.js'), '
 const park = fs.readFileSync(path.join(__dirname, '../extension/park.js'), 'utf8');
 const tick = () => new Promise(resolve => setImmediate(resolve));
 
-async function harness({ visibility = 'hidden', active = false, hash, getCurrent } = {}) {
+async function harness({ visibility = 'hidden', active = false, hash, getCurrent, automatic = false, sendMessage } = {}) {
   const listeners = new Map();
   const navigations = [];
   const elements = Object.fromEntries(['title', 'message', 'destination', 'open'].map(id => [id, {
@@ -27,8 +27,13 @@ async function harness({ visibility = 'hidden', active = false, hash, getCurrent
     location: { hash: hash ?? '#' + encodeURIComponent(JSON.stringify({ v: 1, url: 'https://linux.do/t/42#post-2', title: '<b>Title</b>' })),
       replace(url) { navigations.push(url); } },
     window: { addEventListener(name, cb) { listeners.set(name, cb); } },
-    chrome: { tabs: {
-      getCurrent: getCurrent || (async () => ({ active: activeTab })),
+    chrome: { runtime: {
+      id: 'test-extension',
+      sendMessage: sendMessage || (async request => ({ ok: true, admitted: automatic || request.type === 'park-activate',
+        kind: automatic ? 'auto' : 'manual', url: 'https://linux.do/t/42#post-2' })),
+      onMessage: { addListener(cb) { listeners.set('runtimeMessage', cb); } },
+    }, tabs: {
+      getCurrent: getCurrent || (async () => ({ id: 42, active: activeTab })),
       onActivated: { addListener(cb) { listeners.set('onActivated', cb); } },
     } },
   });
@@ -38,6 +43,7 @@ async function harness({ visibility = 'hidden', active = false, hash, getCurrent
   return { document, elements, navigations,
     setActive(value) { activeTab = value; },
     async emit(name) { listeners.get(name)?.(); await tick(); },
+    async grant(value) { listeners.get('runtimeMessage')?.(value, { id: 'test-extension' }, () => {}); await tick(); },
   };
 }
 
@@ -73,9 +79,42 @@ test('switching away while the active-tab check is pending prevents navigation',
   let finish;
   const h = await harness({ visibility: 'visible', getCurrent: () => new Promise(resolve => { finish = resolve; }) });
   h.document.visibilityState = 'hidden';
-  finish({ active: true });
+  finish({ id: 42, active: true });
   await tick();
   assert.deepEqual(h.navigations, []);
+});
+
+test('automatic grant can load a background page without requiring activation', async () => {
+  const h = await harness({ automatic: true });
+  assert.deepEqual(h.navigations, ['https://linux.do/t/42#post-2']);
+});
+
+test('queue broadcast grants only the matching tab and destination', async () => {
+  const h = await harness();
+  await h.grant({ type: 'queue-grant', tabId: 99, url: 'https://linux.do/t/42#post-2', kind: 'auto' });
+  await h.grant({ type: 'queue-grant', tabId: 42, url: 'https://linux.do/t/wrong', kind: 'auto' });
+  assert.deepEqual(h.navigations, []);
+  await h.grant({ type: 'queue-grant', tabId: 42, url: 'https://linux.do/t/42#post-2', kind: 'auto' });
+  assert.deepEqual(h.navigations, ['https://linux.do/t/42#post-2']);
+});
+
+test('manual broadcast never navigates an inactive page', async () => {
+  const h = await harness();
+  await h.grant({ type: 'queue-grant', tabId: 42, url: 'https://linux.do/t/42#post-2', kind: 'manual' });
+  assert.deepEqual(h.navigations, []);
+});
+
+test('activation during the initial pending registration is retried after the waiting reply', async () => {
+  let finish;
+  const h = await harness({ sendMessage: request => request.type === 'park-ready'
+    ? new Promise(resolve => { finish = resolve; })
+    : Promise.resolve({ ok: true, admitted: true, kind: 'manual', url: 'https://linux.do/t/42#post-2' }) });
+  h.document.visibilityState = 'visible';
+  h.setActive(true);
+  await h.emit('visibilitychange');
+  finish({ ok: true, admitted: false });
+  await tick();
+  assert.deepEqual(h.navigations, ['https://linux.do/t/42#post-2']);
 });
 
 test('invalid destination data leaves the retry button hidden and never navigates', async () => {
