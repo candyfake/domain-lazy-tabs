@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "Domain Lazy Tabs — 指定网站按需加载",
+  "version": "1.0.0",
+  "description": "指定域名的链接在后台打开时先显示本地占位页，切换标签页才访问目标网址。",
+  "permissions": [
+    "storage"
+  ],
+  "incognito": "not_allowed",
+  "icons": {
+    "16": "icons/16.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "action": {
+    "default_title": "Domain Lazy Tabs 设置",
+    "default_popup": "options.html"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "shared.js",
+        "content.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "park.html"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none'; connect-src 'none'"
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAw82/jUIDIuNsJJKl0F/St/b0/z73B1+sPcW0gWLfSy9MBC2mNTUZl5vc9mBpk27toWZvlCc8kPVhVPFnxkx3Ht8ZUEBXBlXMxykzMP5wBAouB/KMDlSLI0skm34s7/Kd0ogtWbf1x9bSUy/So5eWopbWV3w5PpVzKus0hV12f1rOK9RsG9dJmiPGQLlRZXZ9/aU9NDLMY+JzuIgu/Jeuv9KCipJu9qGQRl2YiTUyKPe+lVgm3Gr0U/70Z0mu56p0/WAHspCKlp2LANb0MBXhIWpsv8ZGVgcpB+QyGAHFGkj/b1nSnpyW1aWqzTUZZ7nPtrQi799aJC0X+iTbPhT7mQIDAQAB"
+}

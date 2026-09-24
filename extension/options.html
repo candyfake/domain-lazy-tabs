@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Domain Lazy Tabs 设置</title><link rel="stylesheet" href="ui.css"></head>
+<body class="options"><main>
+  <span class="eyebrow">DOMAIN LAZY TABS</span>
+  <h1>等你查看，再加载</h1>
+  <p>指定网站的后台链接先打开本地占位页，切换标签页时才访问原网址。</p>
+  <label class="toggle"><input id="enabled" type="checkbox"> 启用按需加载</label>
+  <label for="domains">生效域名 · 每行一个</label>
+  <textarea id="domains" rows="6" spellcheck="false" placeholder="linux.do"></textarea>
+  <p class="hint">包含子域名；空列表表示不处理任何网站。普通左键不变，Alt＋右键可临时使用原链接。</p>
+  <button id="save" disabled>保存设置</button>
+  <p id="status" role="status" aria-live="polite"></p>
+  <details><summary>使用范围与权限</summary><p>支持网页普通链接的原生右键新开、Ctrl／⌘ 点击和中键。首次安装后请刷新来源网页。</p><p>仅读取你操作的链接地址和文字以匹配域名、显示标题；信息保存在本机，不上传。原生菜单“复制链接”也会取得占位地址，复制原地址请按住 Alt 再右键。</p><p>不处理书签、地址栏、浏览器内部页面、脚本打开的新窗口。不拦截来源网页自身的预取。</p></details>
+</main><script src="shared.js"></script><script src="options.js"></script></body></html>
