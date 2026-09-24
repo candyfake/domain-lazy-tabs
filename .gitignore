@@ -1,0 +1,26 @@
+# Local dependencies and packaging output
+node_modules/
+dist/
+artifacts/
+test-results/
+playwright-report/
+coverage/
+*.zip
+*.crx
+*.pem
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.local
+.vscode/
+.idea/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
